@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: UniV3Staker
-    network: mainnet
+    network: matic
     source:
       address: '0xe34139463bA50bD61336E0c446Bd8C0867c6fE65'
       abi: UniV3Staker
-      startBlock: 13709767
+      startBlock: 22760705
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

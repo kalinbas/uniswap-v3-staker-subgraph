@@ -1,13 +1,9 @@
 import { ethereum, crypto } from '@graphprotocol/graph-ts';
 import {
-  DepositTransferred,
   IncentiveCreated,
   IncentiveEnded,
-  RewardClaimed,
-  TokenStaked,
-  TokenUnstaked,
 } from '../generated/UniV3Staker/UniV3Staker';
-import { Incentive, Position } from '../generated/schema';
+import { Incentive } from '../generated/schema';
 
 export function handleIncentiveCreated(event: IncentiveCreated): void {
   let incentiveIdTuple: Array<ethereum.Value> = [
@@ -42,34 +38,6 @@ export function handleIncentiveEnded(event: IncentiveEnded): void {
   let entity = Incentive.load(event.params.incentiveId.toHex());
   if (entity != null) {
     entity.ended = true;
-    entity.save();
-  }
-}
-
-export function handleRewardClaimed(event: RewardClaimed): void {}
-
-export function handleTokenStaked(event: TokenStaked): void {
-  let entity = Position.load(event.params.tokenId.toHex());
-  if (entity != null) {
-    entity.staked = true;
-    entity.liquidity = event.params.liquidity;
-    entity.save();
-  }
-}
-
-export function handleTokenUnstaked(event: TokenUnstaked): void {
-  let entity = Position.load(event.params.tokenId.toHex());
-  if (entity != null) {
-    entity.staked = false;
-    entity.save();
-  }
-}
-
-export function handleDepositTransferred(event: DepositTransferred): void {
-  let entity = Position.load(event.params.tokenId.toHex());
-  if (entity != null) {
-    entity.oldOwner = event.params.oldOwner;
-    entity.owner = event.params.newOwner;
     entity.save();
   }
 }
