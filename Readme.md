@@ -1,11 +1,11 @@
 ## Uniswap V3 Staker Subgraph
 
-Subgraph to be used by the [UNI V3 Staker Frontend](https://github.com/vbstreetz/uniswap-v3-staker-frontend).
+Subgraph to be used by the [UNI V3 Staker Frontend](https://github.com/kalinbas/uniswap-v3-staker-frontend).
 
 ### Examples
 
-- https://thegraph.com/legacy-explorer/subgraph/vbstreetz/witswap-staking (mainnet)
-- https://thegraph.com/legacy-explorer/subgraph/vbstreetz/witswap-staking-rinkeby (rinkeby)
+- https://thegraph.com/legacy-explorer/subgraph/kalinbas/uni-v3-staker-mainnet (mainnet)
+- https://thegraph.com/legacy-explorer/subgraph/kalinbas/uni-v3-staker-polygon (matic)
 
 ### Deployment
 

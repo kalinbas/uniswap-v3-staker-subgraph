@@ -3,7 +3,7 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: UniV3Staker
+    name: UniV3Staker1.0.2
     network: matic
     source:
       address: '0xe34139463bA50bD61336E0c446Bd8C0867c6fE65'
@@ -14,8 +14,14 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - IncentiveCreated
-        - IncentiveEnded
+        - Incentive
+        - OwnerStaker
+        - OwnerStakerReward
+        - IncentivePosition
+        - Position
+        - Stake
+        - Unstake
+        - Claim
       abis:
         - name: UniV3Staker
           file: ./abis/UniV3Staker.json
@@ -24,4 +30,10 @@ dataSources:
           handler: handleIncentiveCreated
         - event: IncentiveEnded(indexed bytes32,uint256)
           handler: handleIncentiveEnded
+        - event: TokenStaked(indexed uint256,indexed bytes32,uint128)
+          handler: handleTokenStaked
+        - event: TokenUnstaked(indexed uint256,indexed bytes32)
+          handler: handleTokenUnstaked
+        - event: RewardClaimed(indexed address,uint256)
+          handler: handleRewardClaimed
       file: ./src/uni-v3-staker-mapping.ts

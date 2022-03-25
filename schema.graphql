@@ -7,4 +7,64 @@ type Incentive @entity {
   refundee: Bytes!
   reward: BigInt!
   ended: Boolean!
+  positions: [IncentivePosition]! @derivedFrom(field: "incentive")
 }
+
+type IncentivePosition @entity {
+  id: ID!
+  position: Position!
+  incentive: Incentive!
+  reward: BigInt!
+  claimed: BigInt!
+}
+
+type OwnerStaker @entity {
+  id: ID!
+  address: Bytes!
+  staker: Bytes!
+  rewards: String!
+  incentives: String!
+}
+
+type OwnerStakerReward @entity {
+  id: ID!
+  claimed: BigInt!
+  lastRewards: BigInt!
+  rewardToken: Bytes!
+  owner: Bytes!
+}
+
+type Position @entity {
+  id: ID!
+  owner: Bytes!
+  liquidity: BigInt!
+  stakes: [Stake]! @derivedFrom(field: "position")
+  unstakes: [Unstake]! @derivedFrom(field: "position")
+  claims: [Claim]! @derivedFrom(field: "position")
+  incentives: [IncentivePosition]! @derivedFrom(field: "position")
+}
+
+type Stake @entity {
+  id: ID!
+  txHash: Bytes!
+  timestamp: BigInt!
+  position: Position!
+}
+
+type Unstake @entity {
+  id: ID!
+  txHash: Bytes!
+  timestamp: BigInt!
+  position: Position!
+}
+
+type Claim @entity {
+  id: ID!
+  txHash: Bytes!
+  timestamp: BigInt!
+  position: Position!
+  amount: BigInt!
+  rewardToken: Bytes!
+}
+
+
