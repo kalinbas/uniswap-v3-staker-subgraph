@@ -1,5 +1,6 @@
 type Incentive @entity {
   id: ID!
+  contract: Bytes!
   rewardToken: Bytes!
   pool: Bytes!
   startTime: BigInt!

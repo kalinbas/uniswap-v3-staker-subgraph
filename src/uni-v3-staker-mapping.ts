@@ -28,6 +28,7 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
     entity = new Incentive(incentiveId.toHex());
   }
 
+  entity.contract = event.address;
   entity.rewardToken = event.params.rewardToken;
   entity.pool = event.params.pool;
   entity.startTime = event.params.startTime;
