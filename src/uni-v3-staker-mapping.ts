@@ -102,6 +102,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
         let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex() + "_" + i.toString());
         claim.txHash = event.transaction.hash;
         claim.timestamp = event.block.timestamp;
+        claim.blockNumber = event.block.number;
         claim.position = incentivePosition.position;
         claim.amount = amount;
         claim.rewardToken = rewardToken;
@@ -124,6 +125,7 @@ export function handleTokenStaked(event: TokenStaked): void {
   stake.txHash = event.transaction.hash;
   stake.timestamp = event.block.timestamp;
   stake.position = position.id;
+  stake.blockNumber = event.block.number;
   stake.save();
 
   let incentivePosition = IncentivePosition.load(event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString());
@@ -157,6 +159,7 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
   unstake.txHash = event.transaction.hash;
   unstake.timestamp = event.block.timestamp;
   unstake.position = position.id;
+  unstake.blockNumber = event.block.number;
   unstake.save();
 
   let incentive = Incentive.load(event.params.incentiveId.toHex());

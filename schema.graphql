@@ -49,6 +49,7 @@ type Stake @entity {
   id: ID!
   txHash: Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt!
   position: Position!
 }
 
@@ -56,6 +57,7 @@ type Unstake @entity {
   id: ID!
   txHash: Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt!
   position: Position!
 }
 
@@ -63,6 +65,7 @@ type Claim @entity {
   id: ID!
   txHash: Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt!
   position: Position!
   amount: BigInt!
   rewardToken: Bytes!
