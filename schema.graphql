@@ -15,7 +15,6 @@ type IncentivePosition @entity {
   id: ID!
   position: Position!
   incentive: Incentive!
-  reward: BigInt!
   claimed: BigInt!
 }
 
@@ -23,16 +22,8 @@ type OwnerStaker @entity {
   id: ID!
   address: Bytes!
   staker: Bytes!
-  rewards: String!
-  incentives: String!
-}
-
-type OwnerStakerReward @entity {
-  id: ID!
-  claimed: BigInt!
-  lastRewards: BigInt!
-  rewardToken: Bytes!
-  owner: Bytes!
+  lastUnstakedIncentivePosition: IncentivePosition
+  lastUnstakedTxHash: Bytes
 }
 
 type Position @entity {
