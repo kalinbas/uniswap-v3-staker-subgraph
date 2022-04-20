@@ -63,7 +63,8 @@ export function handleRewardClaimed(event: RewardClaimed): void {
       if (ownerReward) {
         let currentRewards = stakerContract.rewards(Address.fromString(ownerReward.rewardToken.toHex()), Address.fromString(event.params.to.toHex()));
         // check if rewards have changed exactly like predicted
-        if (ownerReward.lastRewards.minus(currentRewards).equals(event.params.reward)) {
+        // if only in one reward program this check is not needed - to avoid problems when stake/unstake/claims are done in the same tx
+        if (rewards.length === 1 || ownerReward.lastRewards.minus(currentRewards).equals(event.params.reward)) {
           rewardToken = ownerReward.rewardToken;
           ownerReward.claimed = ownerReward.claimed.plus(event.params.reward);
           ownerReward.lastRewards = currentRewards;
@@ -89,6 +90,8 @@ export function handleRewardClaimed(event: RewardClaimed): void {
       }
     }
 
+    let allClaimed = false;
+
     if (incompleteSum.gt(BigInt.fromI32(0))) {
       // distribute claimed amount equally
       let precision = BigInt.fromI32(10).pow(8);
@@ -108,6 +111,15 @@ export function handleRewardClaimed(event: RewardClaimed): void {
         claim.rewardToken = rewardToken;
         claim.save();
       }
+      allClaimed = factor == precision;
+    } else {
+      allClaimed = true;
+    }
+
+    // if all was claimed - remove from pending rewards
+    if (allClaimed) {
+      owner.rewards = "";
+      owner.save();
     }
   }
 }
