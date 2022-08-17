@@ -79,6 +79,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "vestingPeriod",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "refundee",
         "type": "address"
@@ -115,6 +121,12 @@
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract IERC20Minimal",
+        "name": "rewardToken",
+        "type": "address"
+      },
       {
         "indexed": true,
         "internalType": "address",
@@ -229,6 +241,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "vestingPeriod",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "refundee",
             "type": "address"
@@ -308,6 +325,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "vestingPeriod",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "refundee",
             "type": "address"
@@ -367,6 +389,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "vestingPeriod",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "refundee",
             "type": "address"
@@ -387,6 +414,11 @@
       {
         "internalType": "uint256",
         "name": "reward",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxReward",
         "type": "uint256"
       },
       {
@@ -411,6 +443,11 @@
       {
         "internalType": "uint256",
         "name": "totalRewardUnclaimed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalRewardLocked",
         "type": "uint256"
       },
       {
@@ -568,6 +605,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "vestingPeriod",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "refundee",
             "type": "address"
@@ -607,6 +649,11 @@
         "internalType": "uint160",
         "name": "secondsPerLiquidityInsideInitialX128",
         "type": "uint160"
+      },
+      {
+        "internalType": "uint32",
+        "name": "secondsInsideInitial",
+        "type": "uint32"
       },
       {
         "internalType": "uint128",
@@ -657,6 +704,11 @@
           {
             "internalType": "uint256",
             "name": "endTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "vestingPeriod",
             "type": "uint256"
           },
           {

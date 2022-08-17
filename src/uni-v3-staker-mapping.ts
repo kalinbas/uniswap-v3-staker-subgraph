@@ -16,6 +16,7 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
     ethereum.Value.fromAddress(event.params.pool),
     ethereum.Value.fromUnsignedBigInt(event.params.startTime),
     ethereum.Value.fromUnsignedBigInt(event.params.endTime),
+    ethereum.Value.fromUnsignedBigInt(event.params.vestingPeriod),
     ethereum.Value.fromAddress(event.params.refundee),
   ];
   let incentiveIdEncoded = ethereum.encode(
@@ -33,6 +34,7 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
   entity.pool = event.params.pool;
   entity.startTime = event.params.startTime;
   entity.endTime = event.params.endTime;
+  entity.vestingPeriod = event.params.vestingPeriod;
   entity.refundee = event.params.refundee;
   entity.reward = event.params.reward;
   entity.ended = false;
@@ -44,6 +46,7 @@ export function handleIncentiveEnded(event: IncentiveEnded): void {
   let entity = Incentive.load(event.params.incentiveId.toHex());
   if (entity != null) {
     entity.ended = true;
+    entity.refund = event.params.refund;
     entity.save();
   }
 }

@@ -4,10 +4,10 @@
   "scripts": {
     "codegen:mainnet": "graph codegen -- subgraph-mainnet.yaml",
     "build:mainnet": "graph build -- subgraph-mainnet.yaml",
-    "deploy:mainnet": "graph deploy --product hosted-service revert-finance/uni-v3-staker-mainnet subgraph-mainnet.yaml",
+    "deploy:mainnet": "graph deploy --product hosted-service revert-finance/uni-v3-vesting-staker-mainnet subgraph-mainnet.yaml",
     "codegen:polygon": "graph codegen -- subgraph-polygon.yaml",
     "build:polygon": "graph build -- subgraph-polygon.yaml",
-    "deploy:polygon": "graph deploy --product hosted-service revert-finance/uni-v3-staker-polygon subgraph-polygon.yaml"
+    "deploy:polygon": "graph deploy --product hosted-service revert-finance/uni-v3-vesting-staker-polygon subgraph-polygon.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.21.1",

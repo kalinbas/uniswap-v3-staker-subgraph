@@ -5,9 +5,11 @@ type Incentive @entity {
   pool: Bytes!
   startTime: BigInt!
   endTime: BigInt!
+  vestingPeriod: BigInt!
   refundee: Bytes!
   reward: BigInt!
   ended: Boolean!
+  refund: BigInt
   positions: [IncentivePosition]! @derivedFrom(field: "incentive")
 }
 
