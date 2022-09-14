@@ -6,9 +6,9 @@ dataSources:
     name: UniV3Staker
     network: matic
     source:
-      address: '0xdBA0d1c99f08BA9E2481ABeC78b4671CdDFbC178'
+      address: '0x8c696deF6Db3104DF72F7843730784460795659a'
       abi: UniV3Staker
-      startBlock: 32010240
+      startBlock: 32732453
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
