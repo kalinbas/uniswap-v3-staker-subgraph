@@ -98,8 +98,9 @@ export function handleTokenStaked(event: TokenStaked): void {
     incentivePosition.position = event.params.tokenId.toString();
     incentivePosition.incentive = event.params.incentiveId.toHex();
     incentivePosition.claimed = new BigInt(0);
-    incentivePosition.save();
   }
+  incentivePosition.staked = true;
+  incentivePosition.save();
 }
 
 export function handleTokenUnstaked(event: TokenUnstaked): void {
@@ -120,6 +121,11 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
     owner.address = position.owner;
     owner.staker = event.address;
   }
+
+  let incentivePosition = IncentivePosition.load(event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString());
+  incentivePosition.staked = false;
+  incentivePosition.save();
+
 
   // only set position once - assume first following claim will be the correct one
   if (!owner.lastUnstakedIncentivePosition) {

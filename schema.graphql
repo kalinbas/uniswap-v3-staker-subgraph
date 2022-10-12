@@ -18,6 +18,7 @@ type IncentivePosition @entity {
   position: Position!
   incentive: Incentive!
   claimed: BigInt!
+  staked: Boolean!
 }
 
 type OwnerStaker @entity {
