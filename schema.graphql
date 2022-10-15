@@ -8,6 +8,8 @@ type Incentive @entity {
   vestingPeriod: BigInt!
   refundee: Bytes!
   reward: BigInt!
+  started: Boolean!
+  expired: Boolean!
   ended: Boolean!
   refund: BigInt
   positions: [IncentivePosition]! @derivedFrom(field: "incentive")
@@ -21,12 +23,11 @@ type IncentivePosition @entity {
   staked: Boolean!
 }
 
-type OwnerStaker @entity {
+type OwnerRewardToken @entity {
   id: ID!
   address: Bytes!
-  staker: Bytes!
+  rewardToken: Bytes!
   lastUnstakedIncentivePosition: IncentivePosition
-  lastUnstakedTxHash: Bytes
 }
 
 type Position @entity {
@@ -65,4 +66,13 @@ type Claim @entity {
   rewardToken: Bytes!
 }
 
-
+# global aggregated data
+type Data @entity {
+  id: ID!
+  activeIncentives: BigInt!
+  stakedPositions: BigInt!
+}
+type TokenData @entity {
+  id: ID!
+  totalClaimed: BigInt!
+}

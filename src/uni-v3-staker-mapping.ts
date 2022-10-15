@@ -8,9 +8,21 @@ import {
   UniV3Staker,
   EndIncentiveCall
 } from '../generated/UniV3Staker/UniV3Staker';
-import { Incentive, Position, OwnerStaker, IncentivePosition, Stake, Unstake, Claim } from '../generated/schema';
+import { Incentive, Position, OwnerRewardToken, IncentivePosition, Stake, Unstake, Claim, Data, TokenData } from '../generated/schema';
+
+let ZERO_BI = BigInt.fromI32(0)
+let ONE_BI = BigInt.fromI32(1)
 
 export function handleIncentiveCreated(event: IncentiveCreated): void {
+
+  let stats = Data.load("1");
+  if (!stats) {
+    stats = new Data("1");
+    stats.stakedPositions = ZERO_BI;
+    stats.activeIncentives = ZERO_BI;
+    stats.save();
+  }
+
   let incentiveIdTuple: Array<ethereum.Value> = [
     ethereum.Value.fromAddress(event.params.rewardToken),
     ethereum.Value.fromAddress(event.params.pool),
@@ -24,56 +36,71 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
   )!;
   let incentiveId = crypto.keccak256(incentiveIdEncoded);
 
-  let entity = Incentive.load(incentiveId.toHex());
-  if (entity == null) {
-    entity = new Incentive(incentiveId.toHex());
+  let incentive = Incentive.load(incentiveId.toHex());
+  if (incentive == null) {
+    incentive = new Incentive(incentiveId.toHex());
   }
 
-  entity.contract = event.address;
-  entity.rewardToken = event.params.rewardToken;
-  entity.pool = event.params.pool;
-  entity.startTime = event.params.startTime;
-  entity.endTime = event.params.endTime;
-  entity.vestingPeriod = event.params.vestingPeriod;
-  entity.refundee = event.params.refundee;
-  entity.reward = event.params.reward;
-  entity.ended = false;
-
-  entity.save();
+  incentive.contract = event.address;
+  incentive.rewardToken = event.params.rewardToken;
+  incentive.pool = event.params.pool;
+  incentive.startTime = event.params.startTime;
+  incentive.endTime = event.params.endTime;
+  incentive.vestingPeriod = event.params.vestingPeriod;
+  incentive.refundee = event.params.refundee;
+  incentive.reward = event.params.reward;
+  incentive.started = false;
+  incentive.expired = false;
+  incentive.ended = false;
+  
+  incentive.save();
 }
 
 export function handleIncentiveEnded(event: IncentiveEnded): void {
-  let entity = Incentive.load(event.params.incentiveId.toHex());
-  if (entity != null) {
-    entity.ended = true;
-    entity.refund = event.params.refund;
-    entity.save();
+  let incentive = Incentive.load(event.params.incentiveId.toHex());
+  if (incentive != null) {
+
+    if (!incentive.started) {
+      incentive.started  = true;
+      incentive.expired = true;
+    } else if (incentive.started && !incentive.expired) {
+      // if all unstakes where made before end of incentive
+      let stats = Data.load("1");
+      stats.activeIncentives = stats.activeIncentives.minus(ONE_BI);  
+      incentive.expired = true;
+      stats.save();
+    }
+
+    incentive.ended = true;
+    incentive.refund = event.params.refund;
+    incentive.save();
   }
 }
 
 export function handleRewardClaimed(event: RewardClaimed): void {
 
-  let owner = OwnerStaker.load(event.params.to.toHex() + event.address.toHex());
+  let owner = OwnerRewardToken.load(event.params.to.toHex() + event.params.rewardToken.toHex());
   let incentivePosition = IncentivePosition.load(owner.lastUnstakedIncentivePosition);
-  if (owner.lastUnstakedIncentivePosition) {
-    let incentive = Incentive.load(incentivePosition.incentive);
-    let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
-    claim.txHash = event.transaction.hash;
-    claim.timestamp = event.block.timestamp;
-    claim.blockNumber = event.block.number;
-    claim.position = incentivePosition.position;
-    claim.amount = event.params.reward;
-    claim.rewardToken = incentive.rewardToken;
-    claim.save();
 
-    incentivePosition.claimed = incentivePosition.claimed.plus(event.params.reward);
-    incentivePosition.save();
+  let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
+  claim.txHash = event.transaction.hash;
+  claim.timestamp = event.block.timestamp;
+  claim.blockNumber = event.block.number;
+  claim.position = incentivePosition.position;
+  claim.amount = event.params.reward;
+  claim.rewardToken = event.params.rewardToken;
+  claim.save();
 
-    owner.lastUnstakedIncentivePosition = null;
-    owner.lastUnstakedTxHash = null;
-    owner.save();
+  let tokenData = TokenData.load(event.params.rewardToken.toHex());
+  if (!tokenData) {
+    tokenData = new TokenData(event.params.rewardToken.toHex());
+    tokenData.totalClaimed = ZERO_BI;
   }
+  tokenData.totalClaimed = tokenData.totalClaimed.plus(claim.amount);
+  tokenData.save();
 
+  incentivePosition.claimed = incentivePosition.claimed.plus(event.params.reward);
+  incentivePosition.save();
 }
 
 export function handleTokenStaked(event: TokenStaked): void {
@@ -84,6 +111,18 @@ export function handleTokenStaked(event: TokenStaked): void {
   }
   position.liquidity = event.params.liquidity;
   position.save();
+
+  let stats = Data.load("1");
+  stats.stakedPositions = stats.stakedPositions.plus(ONE_BI);
+
+  let incentive = Incentive.load(event.params.incentiveId.toHex());
+  if (!incentive.started) {
+    stats.activeIncentives = stats.activeIncentives.plus(ONE_BI);    
+    incentive.started = true;
+    incentive.save();
+  }
+
+  stats.save();
 
   let stake = new Stake(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
   stake.txHash = event.transaction.hash;
@@ -115,11 +154,24 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
   unstake.blockNumber = event.block.number;
   unstake.save();
 
-  let owner = OwnerStaker.load(position.owner.toHex() + event.address.toHex());
+  let incentive = Incentive.load(event.params.incentiveId.toHex());
+
+  let stats = Data.load("1");
+  stats.stakedPositions = stats.stakedPositions.minus(ONE_BI);
+
+  if (!incentive.expired && event.block.timestamp.ge(incentive.endTime)) {
+    stats.activeIncentives = stats.activeIncentives.minus(ONE_BI);    
+    incentive.expired = true;
+    incentive.save();
+  }
+
+  stats.save();
+
+  let owner = OwnerRewardToken.load(position.owner.toHex() + incentive.rewardToken.toHex());
   if (!owner) {
-    owner = new OwnerStaker(position.owner.toHex() + event.address.toHex());
+    owner = new OwnerRewardToken(position.owner.toHex() + incentive.rewardToken.toHex());
     owner.address = position.owner;
-    owner.staker = event.address;
+    owner.rewardToken = incentive.rewardToken;
   }
 
   let incentivePosition = IncentivePosition.load(event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString());
@@ -127,10 +179,7 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
   incentivePosition.save();
 
 
-  // only set position once - assume first following claim will be the correct one
-  if (!owner.lastUnstakedIncentivePosition) {
-    owner.lastUnstakedIncentivePosition = event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString();
-    owner.lastUnstakedTxHash = event.transaction.hash;
-    owner.save();
-  }
+  // assume following claims for reward token will be for this incentive positions rewards
+  owner.lastUnstakedIncentivePosition = event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString();
+  owner.save();
 }

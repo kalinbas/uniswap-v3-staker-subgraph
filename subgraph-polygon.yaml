@@ -15,13 +15,14 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Incentive
-        - OwnerStaker
-        - OwnerStakerReward
+        - OwnerRewardToken
         - IncentivePosition
         - Position
         - Stake
         - Unstake
         - Claim
+        - Data
+        - TokenData
       abis:
         - name: UniV3Staker
           file: ./abis/UniV3Staker.json
