@@ -39,6 +39,7 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
   let incentive = Incentive.load(incentiveId.toHex());
   if (incentive == null) {
     incentive = new Incentive(incentiveId.toHex());
+    incentive.reward = ZERO_BI;
   }
 
   incentive.contract = event.address;
@@ -48,7 +49,7 @@ export function handleIncentiveCreated(event: IncentiveCreated): void {
   incentive.endTime = event.params.endTime;
   incentive.vestingPeriod = event.params.vestingPeriod;
   incentive.refundee = event.params.refundee;
-  incentive.reward = event.params.reward;
+  incentive.reward = incentive.reward.plus(event.params.reward);
   incentive.started = false;
   incentive.expired = false;
   incentive.ended = false;
