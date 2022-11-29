@@ -83,25 +83,29 @@ export function handleRewardClaimed(event: RewardClaimed): void {
   let owner = OwnerRewardToken.load(event.params.to.toHex() + event.params.rewardToken.toHex());
   let incentivePosition = IncentivePosition.load(owner.lastUnstakedIncentivePosition);
 
-  let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
-  claim.txHash = event.transaction.hash;
-  claim.timestamp = event.block.timestamp;
-  claim.blockNumber = event.block.number;
-  claim.position = incentivePosition.position;
-  claim.amount = event.params.reward;
-  claim.rewardToken = event.params.rewardToken;
-  claim.save();
+  if (incentivePosition) {
+    let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
+    claim.txHash = event.transaction.hash;
+    claim.timestamp = event.block.timestamp;
+    claim.blockNumber = event.block.number;
+    claim.position = incentivePosition.position;
+    claim.amount = event.params.reward;
+    claim.rewardToken = event.params.rewardToken;
+    claim.save();
+  }  
 
   let tokenData = TokenData.load(event.params.rewardToken.toHex());
   if (!tokenData) {
     tokenData = new TokenData(event.params.rewardToken.toHex());
     tokenData.totalClaimed = ZERO_BI;
   }
-  tokenData.totalClaimed = tokenData.totalClaimed.plus(claim.amount);
+  tokenData.totalClaimed = tokenData.totalClaimed.plus(event.params.reward);
   tokenData.save();
 
-  incentivePosition.claimed = incentivePosition.claimed.plus(event.params.reward);
-  incentivePosition.save();
+  if (incentivePosition) {
+    incentivePosition.claimed = incentivePosition.claimed.plus(event.params.reward);
+    incentivePosition.save();
+  }
 }
 
 export function handleTokenStaked(event: TokenStaked): void {
@@ -178,8 +182,7 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
   let incentivePosition = IncentivePosition.load(event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString());
   incentivePosition.staked = false;
   incentivePosition.save();
-
-
+  
   // assume following claims for reward token will be for this incentive positions rewards
   owner.lastUnstakedIncentivePosition = event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString();
   owner.save();
