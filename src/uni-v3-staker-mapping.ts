@@ -80,7 +80,12 @@ export function handleIncentiveEnded(event: IncentiveEnded): void {
 
 export function handleRewardClaimed(event: RewardClaimed): void {
 
-  let owner = OwnerRewardToken.load(event.params.to.toHex() + event.params.rewardToken.toHex());
+  // try to find owner - usually should be tx from account 
+  let owner = OwnerRewardToken.load(event.transaction.from.toHex() + event.params.rewardToken.toHex());
+  if (!owner) {
+    owner = OwnerRewardToken.load(event.params.to.toHex() + event.params.rewardToken.toHex());
+  }
+
   let incentivePosition = IncentivePosition.load(owner.lastUnstakedIncentivePosition);
 
   if (incentivePosition) {
@@ -92,7 +97,7 @@ export function handleRewardClaimed(event: RewardClaimed): void {
     claim.amount = event.params.reward;
     claim.rewardToken = event.params.rewardToken;
     claim.save();
-  }  
+  }
 
   let tokenData = TokenData.load(event.params.rewardToken.toHex());
   if (!tokenData) {
