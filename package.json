@@ -7,7 +7,10 @@
     "deploy:mainnet": "graph deploy --product hosted-service revert-finance/uni-v3-vesting-staker-mainnet subgraph-mainnet.yaml",
     "codegen:polygon": "graph codegen -- subgraph-polygon.yaml",
     "build:polygon": "graph build -- subgraph-polygon.yaml",
-    "deploy:polygon": "graph deploy --product hosted-service revert-finance/uni-v3-vesting-staker-polygon subgraph-polygon.yaml"
+    "deploy:polygon": "graph deploy --product hosted-service revert-finance/uni-v3-vesting-staker-polygon subgraph-polygon.yaml",
+    "codegen:evmos": "graph codegen -- subgraph-evmos.yaml",
+    "build:evmos": "graph build -- subgraph-evmos.yaml",
+    "deploy:evmos": "graph deploy uni-v3-vesting-staker-evmos --version-label v0.0.1 --node https://app.satsuma.xyz/api/subgraphs/deploy --deploy-key ... -- subgraph-evmos.yaml"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.21.1",

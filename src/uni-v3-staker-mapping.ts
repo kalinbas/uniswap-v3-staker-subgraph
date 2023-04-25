@@ -88,16 +88,18 @@ export function handleRewardClaimed(event: RewardClaimed): void {
 
   let incentivePosition = IncentivePosition.load(owner.lastUnstakedIncentivePosition);
 
+  let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
+  claim.txHash = event.transaction.hash;
+  claim.timestamp = event.block.timestamp;
+  claim.blockNumber = event.block.number;
   if (incentivePosition) {
-    let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
-    claim.txHash = event.transaction.hash;
-    claim.timestamp = event.block.timestamp;
-    claim.blockNumber = event.block.number;
     claim.position = incentivePosition.position;
-    claim.amount = event.params.reward;
-    claim.rewardToken = event.params.rewardToken;
-    claim.save();
   }
+  claim.to = event.params.to;
+  claim.amount = event.params.reward;
+  claim.rewardToken = event.params.rewardToken;
+  claim.save();
+
 
   let tokenData = TokenData.load(event.params.rewardToken.toHex());
   if (!tokenData) {
