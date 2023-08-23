@@ -1,61 +1,92 @@
 import { ethereum, crypto, Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
 import {
-  IncentiveCreated,
-  IncentiveEnded,
-  TokenStaked,
-  TokenUnstaked,
-  RewardClaimed,
-  UniV3Staker,
-  EndIncentiveCall
-} from '../generated/UniV3Staker/UniV3Staker';
-import { Incentive, Position, OwnerRewardToken, IncentivePosition, Stake, Unstake, Claim, Data, TokenData } from '../generated/schema';
+  AddPool,
+  SetPool,
+  Deposit,
+  Withdraw,
+  Harvest,
+  UpdateLiquidity,
+  NewUpkeepPeriod,
+  UpdateUpkeepPeriod
+} from '../generated/MasterChefV3/MasterChefV3';
+import { UpkeepPeriod, Incentive, Position, IncentivePosition, Stake, Unstake, Claim, Global } from '../generated/schema';
 
 let ZERO_BI = BigInt.fromI32(0)
 let ONE_BI = BigInt.fromI32(1)
+let ADDRESS_ZERO = Address.fromString('0x0000000000000000000000000000000000000000')
 
-export function handleIncentiveCreated(event: IncentiveCreated): void {
-
-  let stats = Data.load("1");
-  if (!stats) {
-    stats = new Data("1");
-    stats.stakedPositions = ZERO_BI;
-    stats.activeIncentives = ZERO_BI;
-    stats.save();
+function getGlobal(): Global {
+  let global = Global.load("1")
+  if (!global) {
+    global = new Global("1")
+    global.poolCount = ZERO_BI
+    global.allocPointTotal = ZERO_BI
   }
+  return global!
+}
 
-  let incentiveIdTuple: Array<ethereum.Value> = [
-    ethereum.Value.fromAddress(event.params.rewardToken),
-    ethereum.Value.fromAddress(event.params.pool),
-    ethereum.Value.fromUnsignedBigInt(event.params.startTime),
-    ethereum.Value.fromUnsignedBigInt(event.params.endTime),
-    ethereum.Value.fromUnsignedBigInt(event.params.vestingPeriod),
-    ethereum.Value.fromAddress(event.params.refundee),
-  ];
-  let incentiveIdEncoded = ethereum.encode(
-    ethereum.Value.fromTuple(incentiveIdTuple as ethereum.Tuple)
-  )!;
-  let incentiveId = crypto.keccak256(incentiveIdEncoded);
+export function handleNewUpkeepPeriod(event: NewUpkeepPeriod): void {
+  let period = new UpkeepPeriod(event.params.periodNumber.toString());
+  period.startTime = event.params.startTime
+  period.endTime = event.params.endTime
+  period.cakePerSecond = event.params.cakePerSecond
+  period.cakeAmount = event.params.cakeAmount
+  period.save()
 
-  let incentive = Incentive.load(incentiveId.toHex());
-  if (incentive == null) {
-    incentive = new Incentive(incentiveId.toHex());
-    incentive.reward = ZERO_BI;
+  let global = getGlobal()
+  global.currentPeriod = event.params.periodNumber
+  global.save()
+}
+
+export function handleUpdateUpkeepPeriod(event: UpdateUpkeepPeriod): void {
+  let period = UpkeepPeriod.load(event.params.periodNumber.toString())
+  if (period) {
+    period.endTime = event.params.newEndTime
+    period.cakeAmount = period.cakeAmount.minus(event.params.remainingCake)
+    period.save()
   }
+}
+
+export function handleAddPool(event: AddPool): void {
+
+  let incentive = Incentive.load(event.params.pid.toString());
+  let global = getGlobal()
+  let period = UpkeepPeriod.load(global.currentPeriod.toString())!
+
+  incentive = new Incentive(event.params.pid.toString());
+  incentive.reward = ZERO_BI;
+  global.poolCount = event.params.pid
+  global.allocPointTotal = global.allocPointTotal.plus(event.params.allocPoint)
 
   incentive.contract = event.address;
-  incentive.rewardToken = event.params.rewardToken;
-  incentive.pool = event.params.pool;
-  incentive.startTime = event.params.startTime;
-  incentive.endTime = event.params.endTime;
-  incentive.vestingPeriod = event.params.vestingPeriod;
-  incentive.refundee = event.params.refundee;
-  incentive.reward = incentive.reward.plus(event.params.reward);
-  incentive.started = false;
+  incentive.rewardToken = Address.fromString('0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82');
+  incentive.pool = event.params.v3Pool
+  incentive.startTime = period.startTime;
+  incentive.endTime = period.endTime;
+  incentive.vestingPeriod = ZERO_BI;
+  incentive.refundee = ADDRESS_ZERO;
+  incentive.reward = ZERO_BI;
+  incentive.started = true;
   incentive.expired = false;
   incentive.ended = false;
+  incentive.allocPoint = event.params.allocPoint
   
-  incentive.save();
+  incentive.save()
+  global.save()
 }
+
+export function handleSetPool(event: SetPool): void {
+  let incentive = Incentive.load(event.params.pid.toString())
+  if (incentive) {
+      let global = getGlobal()
+      global.allocPointTotal = global.allocPointTotal.minus(incentive.allocPoint).plus(event.params.allocPoint)
+      incentive.allocPoint = event.params.allocPoint
+      incentive.save()
+      global.save()
+  }
+}
+
+/*
 
 export function handleIncentiveEnded(event: IncentiveEnded): void {
   let incentive = Incentive.load(event.params.incentiveId.toHex());
@@ -194,3 +225,4 @@ export function handleTokenUnstaked(event: TokenUnstaked): void {
   owner.lastUnstakedIncentivePosition = event.params.incentiveId.toHex() + "#" + event.params.tokenId.toString();
   owner.save();
 }
+*/

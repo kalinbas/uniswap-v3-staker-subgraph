@@ -1,3 +1,18 @@
+type Global @entity {
+  id: ID!
+  currentPeriod: BigInt!
+  poolCount: BigInt!
+  allocPointTotal: BigInt!
+}
+
+type UpkeepPeriod @entity {
+  id: ID!
+  startTime: BigInt!
+  endTime: BigInt!
+  cakePerSecond: BigInt!
+  cakeAmount: BigInt!
+}
+
 type Incentive @entity {
   id: ID!
   contract: Bytes!
@@ -12,6 +27,7 @@ type Incentive @entity {
   expired: Boolean!
   ended: Boolean!
   refund: BigInt
+  allocPoint: BigInt!
   positions: [IncentivePosition]! @derivedFrom(field: "incentive")
 }
 
@@ -21,13 +37,6 @@ type IncentivePosition @entity {
   incentive: Incentive!
   claimed: BigInt!
   staked: Boolean!
-}
-
-type OwnerRewardToken @entity {
-  id: ID!
-  address: Bytes!
-  rewardToken: Bytes!
-  lastUnstakedIncentivePosition: IncentivePosition
 }
 
 type Position @entity {
@@ -65,15 +74,4 @@ type Claim @entity {
   to: Bytes!
   amount: BigInt!
   rewardToken: Bytes!
-}
-
-# global aggregated data
-type Data @entity {
-  id: ID!
-  activeIncentives: BigInt!
-  stakedPositions: BigInt!
-}
-type TokenData @entity {
-  id: ID!
-  totalClaimed: BigInt!
 }
