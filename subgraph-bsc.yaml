@@ -24,10 +24,10 @@ dataSources:
         - name: MasterChefV3
           file: ./abis/MasterChefV3.json
       eventHandlers:
-#        - event: AddPool(indexed uint256,uint256,indexed address,indexed address)
-#          handler: handleAddPool
-#        - event: SetPool(indexed uint256,uint256)
-#          handler: handleSetPool
+        - event: AddPool(indexed uint256,uint256,indexed address,indexed address)
+          handler: handleAddPool
+        - event: SetPool(indexed uint256,uint256)
+          handler: handleSetPool
 #        - event: Deposit(indexed address,indexed uint256,indexed uint256,uint256,int24,int24)
 #          handler: handleDeposit
 #        - event: Withdraw(indexed address,address,indexed uint256,indexed uint256)

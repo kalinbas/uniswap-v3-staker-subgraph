@@ -21,6 +21,7 @@ function getGlobal(): Global {
     global = new Global("1")
     global.poolCount = ZERO_BI
     global.allocPointTotal = ZERO_BI
+    global.currentPeriod = ZERO_BI
   }
   return global!
 }
@@ -55,14 +56,16 @@ export function handleAddPool(event: AddPool): void {
 
   incentive = new Incentive(event.params.pid.toString());
   incentive.reward = ZERO_BI;
-  global.poolCount = event.params.pid
+  global.poolCount = global.poolCount.plus(ONE_BI)
   global.allocPointTotal = global.allocPointTotal.plus(event.params.allocPoint)
 
   incentive.contract = event.address;
   incentive.rewardToken = Address.fromString('0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82');
   incentive.pool = event.params.v3Pool
-  incentive.startTime = period.startTime;
-  incentive.endTime = period.endTime;
+  if (period) {
+    incentive.startTime = period.startTime;
+    incentive.endTime = period.endTime;
+  }
   incentive.vestingPeriod = ZERO_BI;
   incentive.refundee = ADDRESS_ZERO;
   incentive.reward = ZERO_BI;

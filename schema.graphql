@@ -18,8 +18,8 @@ type Incentive @entity {
   contract: Bytes!
   rewardToken: Bytes!
   pool: Bytes!
-  startTime: BigInt!
-  endTime: BigInt!
+  startTime: BigInt
+  endTime: BigInt
   vestingPeriod: BigInt!
   refundee: Bytes!
   reward: BigInt!
