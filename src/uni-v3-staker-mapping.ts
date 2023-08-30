@@ -97,7 +97,7 @@ export function handleAddPool(event: AddPool): void {
   global.save()
 
   if (period) {
-    updatePools(global, period)
+    updatePools(global, period!)
   }
 }
 
@@ -112,7 +112,7 @@ export function handleSetPool(event: SetPool): void {
       global.save()
 
       if (period) {
-        updatePools(global, period)
+        updatePools(global, period!)
       }
   }
 }
