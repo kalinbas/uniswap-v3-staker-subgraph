@@ -163,7 +163,7 @@ export function handleWithdraw(event: Withdraw): void {
 export function handleUpdateLiquidity(event: UpdateLiquidity): void {
   let position = Position.load(event.params.tokenId.toString())
   if (position) {
-    position.liquidity = event.params.liquidity
+    position.liquidity = position.liquidity.plus(event.params.liquidity)
     position.save()
   }
 }
