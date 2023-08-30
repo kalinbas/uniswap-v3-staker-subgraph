@@ -43,7 +43,7 @@ export function handleNewUpkeepPeriod(event: NewUpkeepPeriod): void {
 }
 
 
-function updatePools(global: Global, period: UpkeepPeriod) {
+function updatePools(global: Global, period: UpkeepPeriod): void {
   // update incentive reward and times for all pools
   let poolCount = global.poolCount.toI32()
   for (let i = 1; i <= poolCount; i++) {
@@ -71,7 +71,7 @@ export function handleAddPool(event: AddPool): void {
 
   let incentive = Incentive.load(event.params.pid.toString());
   let global = getGlobal()
-  let period = UpkeepPeriod.load(global.currentPeriod.toString())!
+  let period = UpkeepPeriod.load(global.currentPeriod.toString())
 
   incentive = new Incentive(event.params.pid.toString());
   incentive.reward = ZERO_BI;
@@ -96,20 +96,24 @@ export function handleAddPool(event: AddPool): void {
   incentive.save()
   global.save()
 
-  updatePools(global, period)
+  if (period) {
+    updatePools(global, period)
+  }
 }
 
 export function handleSetPool(event: SetPool): void {
   let incentive = Incentive.load(event.params.pid.toString())
   if (incentive) {
       let global = getGlobal()
-      let period = UpkeepPeriod.load(global.currentPeriod.toString())!
+      let period = UpkeepPeriod.load(global.currentPeriod.toString())
       global.allocPointTotal = global.allocPointTotal.minus(incentive.allocPoint).plus(event.params.allocPoint)
       incentive.allocPoint = event.params.allocPoint
       incentive.save()
       global.save()
 
-      updatePools(global, period)
+      if (period) {
+        updatePools(global, period)
+      }
   }
 }
 
