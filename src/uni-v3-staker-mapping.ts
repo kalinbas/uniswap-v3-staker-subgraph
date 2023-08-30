@@ -14,6 +14,7 @@ import { UpkeepPeriod, Incentive, Position, IncentivePosition, Stake, Unstake, C
 let ZERO_BI = BigInt.fromI32(0)
 let ONE_BI = BigInt.fromI32(1)
 let ADDRESS_ZERO = Address.fromString('0x0000000000000000000000000000000000000000')
+let ADDRESS_CAKE = Address.fromString('0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82')
 
 function getGlobal(): Global {
   let global = Global.load("1")
@@ -37,7 +38,25 @@ export function handleNewUpkeepPeriod(event: NewUpkeepPeriod): void {
   let global = getGlobal()
   global.currentPeriod = event.params.periodNumber
   global.save()
+
+  updatePools(global, period)
 }
+
+
+function updatePools(global: Global, period: UpkeepPeriod) {
+  // update incentive reward and times for all pools
+  let poolCount = global.poolCount.toI32()
+  for (let i = 1; i <= poolCount; i++) {
+    let incentive = Incentive.load(i.toString());
+    if (incentive) {
+      incentive.startTime = period.startTime
+      incentive.endTime = incentive.endTime
+      incentive.reward = period.cakeAmount.times(incentive.allocPoint).div(global.allocPointTotal)
+      incentive.save()
+    }
+  }
+}
+
 
 export function handleUpdateUpkeepPeriod(event: UpdateUpkeepPeriod): void {
   let period = UpkeepPeriod.load(event.params.periodNumber.toString())
@@ -59,8 +78,8 @@ export function handleAddPool(event: AddPool): void {
   global.poolCount = global.poolCount.plus(ONE_BI)
   global.allocPointTotal = global.allocPointTotal.plus(event.params.allocPoint)
 
-  incentive.contract = event.address;
-  incentive.rewardToken = Address.fromString('0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82');
+  incentive.contract = event.address
+  incentive.rewardToken = ADDRESS_CAKE
   incentive.pool = event.params.v3Pool
   if (period) {
     incentive.startTime = period.startTime;
@@ -76,16 +95,21 @@ export function handleAddPool(event: AddPool): void {
   
   incentive.save()
   global.save()
+
+  updatePools(global, period)
 }
 
 export function handleSetPool(event: SetPool): void {
   let incentive = Incentive.load(event.params.pid.toString())
   if (incentive) {
       let global = getGlobal()
+      let period = UpkeepPeriod.load(global.currentPeriod.toString())!
       global.allocPointTotal = global.allocPointTotal.minus(incentive.allocPoint).plus(event.params.allocPoint)
       incentive.allocPoint = event.params.allocPoint
       incentive.save()
       global.save()
+
+      updatePools(global, period)
   }
 }
 
