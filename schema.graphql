@@ -70,7 +70,7 @@ type Claim @entity {
   txHash: Bytes!
   timestamp: BigInt!
   blockNumber: BigInt!
-  position: Position
+  position: Position!
   to: Bytes!
   amount: BigInt!
   rewardToken: Bytes!
