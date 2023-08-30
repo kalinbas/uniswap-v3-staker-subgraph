@@ -50,7 +50,7 @@ function updatePools(global: Global, period: UpkeepPeriod): void {
     let incentive = Incentive.load(i.toString());
     if (incentive) {
       incentive.startTime = period.startTime
-      incentive.endTime = incentive.endTime
+      incentive.endTime = period.endTime
       incentive.reward = period.cakeAmount.times(incentive.allocPoint).div(global.allocPointTotal)
       incentive.save()
     }
