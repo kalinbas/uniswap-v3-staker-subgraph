@@ -4,7 +4,7 @@
   "scripts": {
     "codegen:bsc": "graph codegen -- subgraph-bsc.yaml",
     "build:bsc": "graph build -- subgraph-bsc.yaml",
-    "deploy:bsc": "graph deploy --product hosted-service kalinbas/pcsv3rew subgraph-bsc.yaml" },
+    "deploy:bsc": "graph deploy --product hosted-service revert-finance/pancakeswap-v3-staker-bnb subgraph-bsc.yaml" },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.21.1",
     "@graphprotocol/graph-ts": "0.20.1"
