@@ -1,44 +1,46 @@
 import { ethereum, crypto, Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
 import {
-  IncentiveCreated,
-  IncentiveEnded,
-  TokenStaked,
-  TokenUnstaked,
-  RewardClaimed,
-  UniV3Staker,
-  EndIncentiveCall
-} from '../generated/UniV3Staker/UniV3Staker';
+  GaugeCreated,
+  GaugeKilled,
+  GaugeRevived,
+  NotifyReward
+} from '../generated/Voter/Voter';
+import {
+  ClaimRewards,
+  Deposit,
+  Withdraw
+} from '../generated/templates/CLGauge/CLGauge';
+import { CLGauge as CLGaugeTemplate } from '../generated/templates'
 import { Incentive, Position, OwnerStaker, IncentivePosition, Stake, Unstake, Claim } from '../generated/schema';
 
-export function handleIncentiveCreated(event: IncentiveCreated): void {
-  let incentiveIdTuple: Array<ethereum.Value> = [
-    ethereum.Value.fromAddress(event.params.rewardToken),
-    ethereum.Value.fromAddress(event.params.pool),
-    ethereum.Value.fromUnsignedBigInt(event.params.startTime),
-    ethereum.Value.fromUnsignedBigInt(event.params.endTime),
-    ethereum.Value.fromAddress(event.params.refundee),
-  ];
-  let incentiveIdEncoded = ethereum.encode(
-    ethereum.Value.fromTuple(incentiveIdTuple as ethereum.Tuple)
-  )!;
-  let incentiveId = crypto.keccak256(incentiveIdEncoded);
-
-  let entity = Incentive.load(incentiveId.toHex());
-  if (entity == null) {
-    entity = new Incentive(incentiveId.toHex());
-  }
-
-  entity.contract = event.address;
-  entity.rewardToken = event.params.rewardToken;
-  entity.pool = event.params.pool;
-  entity.startTime = event.params.startTime;
-  entity.endTime = event.params.endTime;
-  entity.refundee = event.params.refundee;
-  entity.reward = event.params.reward;
-  entity.ended = false;
-
-  entity.save();
+export function handleGaugeCreated(event: GaugeCreated): void {
+  CLGaugeTemplate.create(event.params.gauge)
 }
+
+export function handleGaugeKilled(event: GaugeKilled): void {
+
+}
+
+export function handleGaugeRevived(event: GaugeRevived): void {
+
+}
+
+export function handleDeposit(event: Deposit) void {
+
+}
+
+export function handleWithdraw(event: Withdraw) void {
+
+}
+
+export function handleClaimRewards(event: ClaimRewards) void {
+
+}
+
+export function handleNotifyReward(event: NotifyReward) void {
+
+}
+
 
 export function handleIncentiveEnded(event: IncentiveEnded): void {
   let entity = Incentive.load(event.params.incentiveId.toHex());

@@ -1,14 +1,11 @@
 type Incentive @entity {
   id: ID!
-  contract: Bytes!
-  rewardToken: Bytes!
   pool: Bytes!
+  gauge: Bytes!
   startTime: BigInt!
   endTime: BigInt!
-  refundee: Bytes!
   reward: BigInt!
-  ended: Boolean!
-  positions: [IncentivePosition]! @derivedFrom(field: "incentive")
+  rewardToken: Bytes!
 }
 
 type IncentivePosition @entity {
