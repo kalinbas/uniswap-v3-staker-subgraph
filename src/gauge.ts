@@ -1,4 +1,4 @@
-import { ethereum, crypto, Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
+import { ethereum, crypto, Address, BigInt, log } from '@graphprotocol/graph-ts';
 
 import {
   ClaimRewards,
@@ -47,14 +47,17 @@ export function handleWithdraw(event: Withdraw): void {
 export function handleClaimRewards(event: ClaimRewards): void {
 
   let contract = CLGauge.bind(event.address)
-  let rewardToken = contract.rewardToken()
+  let rewardToken = contract.try_rewardToken()
+  if (rewardToken.reverted) {
+    log.warning("gauge contract call reverted", []);
+  }
 
   let claim = new Claim(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
   claim.txHash = event.transaction.hash;
   claim.timestamp = event.block.timestamp;
   claim.blockNumber = event.block.number;
   claim.amount = event.params.amount;
-  claim.rewardToken = rewardToken;
+  claim.rewardToken = rewardToken.value;
   claim.owner = event.params.from;
   claim.save();
 }
@@ -62,18 +65,24 @@ export function handleClaimRewards(event: ClaimRewards): void {
 export function handleNotifyReward(event: NotifyReward): void {
 
   let contract = CLGauge.bind(event.address)
-  let rewardToken = contract.rewardToken()
-  let endTime = contract.periodFinish()
-  let rewardRate = contract.rewardRate()
-  let pool = contract.pool()
+  let rewardToken = contract.try_rewardToken()
+  let endTime = contract.try_periodFinish()
+  let rewardRate = contract.try_rewardRate()
+  let pool = contract.try_pool()
 
-  let incentive = new Incentive(event.transaction.hash.toHex() + "#" + event.logIndex.toHex())
-  incentive.reward = rewardRate.times(endTime.minus(event.block.timestamp))
-  incentive.rewardToken = rewardToken
-  incentive.startTime = event.block.timestamp
-  incentive.endTime = endTime
-  incentive.gauge = event.address;
-  incentive.pool = pool;
-  incentive.save();
+  if (rewardToken.reverted || endTime.reverted || rewardRate.reverted || pool.reverted) {
+    log.warning("gauge contract call reverted", []);
+  } else {
+    let incentive = new Incentive(event.transaction.hash.toHex() + "#" + event.logIndex.toHex())
+    incentive.reward = rewardRate.value.times(endTime.value.minus(event.block.timestamp))
+    incentive.rewardToken = rewardToken.value
+    incentive.startTime = event.block.timestamp
+    incentive.endTime = endTime.value
+    incentive.gauge = event.address;
+    incentive.pool = pool.value;
+    incentive.save();
+  }
+
+
 }
 
