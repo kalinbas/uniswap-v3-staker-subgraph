@@ -8,29 +8,12 @@ type Incentive @entity {
   rewardToken: Bytes!
 }
 
-type IncentivePosition @entity {
-  id: ID!
-  position: Position!
-  incentive: Incentive!
-  claimed: BigInt!
-}
-
-type OwnerStaker @entity {
-  id: ID!
-  address: Bytes!
-  staker: Bytes!
-  lastUnstakedIncentivePosition: IncentivePosition
-  lastUnstakedTxHash: Bytes
-}
-
 type Position @entity {
   id: ID!
   owner: Bytes!
   liquidity: BigInt!
   stakes: [Stake]! @derivedFrom(field: "position")
   unstakes: [Unstake]! @derivedFrom(field: "position")
-  claims: [Claim]! @derivedFrom(field: "position")
-  incentives: [IncentivePosition]! @derivedFrom(field: "position")
 }
 
 type Stake @entity {
@@ -54,9 +37,6 @@ type Claim @entity {
   txHash: Bytes!
   timestamp: BigInt!
   blockNumber: BigInt!
-  position: Position!
   amount: BigInt!
   rewardToken: Bytes!
 }
-
-

@@ -25,6 +25,8 @@ dataSources:
       abis:
         - name: Voter
           file: ./abis/Voter.json
+        - name: CLGauge
+          file: ./abis/CLGauge.json
       eventHandlers:
         - event: GaugeCreated(indexed address,indexed address,indexed address,address,address,address,address,address)
           handler: handleGaugeCreated
