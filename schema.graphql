@@ -12,6 +12,7 @@ type Position @entity {
   id: ID!
   owner: Bytes!
   liquidity: BigInt!
+  staked: Boolean!
   stakes: [Stake]! @derivedFrom(field: "position")
   unstakes: [Unstake]! @derivedFrom(field: "position")
 }

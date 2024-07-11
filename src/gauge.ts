@@ -1,3 +1,5 @@
+import { ethereum, crypto, Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
+
 import {
   ClaimRewards,
   Deposit,
@@ -16,6 +18,7 @@ export function handleDeposit(event: Deposit): void {
   }
   position.owner = event.params.user;
   position.liquidity = event.params.liquidityToStake;
+  position.staked = true;
   position.save();
 
   let stake = new Stake(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
@@ -28,6 +31,10 @@ export function handleDeposit(event: Deposit): void {
 
 export function handleWithdraw(event: Withdraw): void {
   let position = Position.load(event.params.tokenId.toString())!;
+  position.staked = false;
+  position.liquidity = BigInt.fromI32(0);
+  position.owner = Address.zero();
+  position.save();
 
   let unstake = new Unstake(event.transaction.hash.toHex() + "#" + event.logIndex.toHex());
   unstake.txHash = event.transaction.hash;
@@ -57,10 +64,11 @@ export function handleNotifyReward(event: NotifyReward): void {
   let contract = CLGauge.bind(event.address)
   let rewardToken = contract.rewardToken()
   let endTime = contract.periodFinish()
+  let rewardRate = contract.rewardRate()
   let pool = contract.pool()
 
   let incentive = new Incentive(event.transaction.hash.toHex() + "#" + event.logIndex.toHex())
-  incentive.reward = event.params.amount
+  incentive.reward = rewardRate.times(endTime.minus(event.block.timestamp))
   incentive.rewardToken = rewardToken
   incentive.startTime = event.block.timestamp
   incentive.endTime = endTime
