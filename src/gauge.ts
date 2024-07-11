@@ -15,7 +15,9 @@ import { CLGauge } from '../generated/Voter/CLGauge'
 import { Incentive, Position, Stake, Unstake, Claim } from '../generated/schema';
 
 export function handleGaugeCreated(event: GaugeCreated): void {
-  CLGaugeTemplate.create(event.params.gauge)
+  if (event.params.gaugeFactory.toHexString() === "0x327147ee440252b893a771345025b41a267ad985" || event.params.gaugeFactory.toHexString() === "0x327147eE440252b893A771345025B41A267Ad985") {
+    CLGaugeTemplate.create(event.params.gauge)
+  }  
 }
 
 export function handleGaugeKilled(event: GaugeKilled): void {

@@ -11,13 +11,10 @@ dataSources:
       startBlock: 121501668
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Incentive
-        - OwnerStaker
-        - OwnerStakerReward
-        - IncentivePosition
         - Position
         - Stake
         - Unstake
@@ -47,8 +44,11 @@ templates:
       language: wasm/assemblyscript
       file: ./src/gauge.ts
       entities:
-        - Pool
-        - Token
+        - Incentive
+        - Position
+        - Stake
+        - Unstake
+        - Claim
       abis:
         - name: CLGauge
           file: ./abis/CLGauge.json
