@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: ./schema.graphql
 dataSources:
@@ -31,7 +31,7 @@ dataSources:
           handler: handleGaugeKilled
         - event: GaugeRevived(indexed address)
           handler: handleGaugeRevived
-      file: ./src/gauge.ts
+      file: ./src/voter.ts
 templates:
   - kind: ethereum/contract
     name: CLGauge

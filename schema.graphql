@@ -39,4 +39,5 @@ type Claim @entity {
   blockNumber: BigInt!
   amount: BigInt!
   rewardToken: Bytes!
+  owner: Bytes!
 }

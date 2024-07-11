@@ -1,32 +1,13 @@
-import { ethereum, crypto, Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
-import {
-  GaugeCreated,
-  GaugeKilled,
-  GaugeRevived
-} from '../generated/Voter/Voter';
 import {
   ClaimRewards,
   Deposit,
   Withdraw,
   NotifyReward
 } from '../generated/templates/CLGauge/CLGauge';
-import { CLGauge as CLGaugeTemplate } from '../generated/templates'
+
 import { CLGauge } from '../generated/Voter/CLGauge'
 import { Incentive, Position, Stake, Unstake, Claim } from '../generated/schema';
 
-export function handleGaugeCreated(event: GaugeCreated): void {
-  if (event.params.gaugeFactory.toHexString() === "0x327147ee440252b893a771345025b41a267ad985" || event.params.gaugeFactory.toHexString() === "0x327147eE440252b893A771345025B41A267Ad985") {
-    CLGaugeTemplate.create(event.params.gauge)
-  }  
-}
-
-export function handleGaugeKilled(event: GaugeKilled): void {
-
-}
-
-export function handleGaugeRevived(event: GaugeRevived): void {
-
-}
 
 export function handleDeposit(event: Deposit): void {
   let position = Position.load(event.params.tokenId.toString());
@@ -67,6 +48,7 @@ export function handleClaimRewards(event: ClaimRewards): void {
   claim.blockNumber = event.block.number;
   claim.amount = event.params.amount;
   claim.rewardToken = rewardToken;
+  claim.owner = event.params.from;
   claim.save();
 }
 
