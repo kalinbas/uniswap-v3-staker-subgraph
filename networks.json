@@ -1,0 +1,14 @@
+{
+  "optimism": {
+    "Voter": {
+      "address": "0x41c914ee0c7e1a5edcd0295623e6dc557b5abf3c",
+      "startBlock": 121501668
+    }
+  },
+  "base": {
+    "Voter": {
+      "address": "0x16613524e02ad97eDfeF371bC883F2F5d6C480A5",
+      "startBlock": 13843711 
+    }
+  }
+}

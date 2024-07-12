@@ -3,8 +3,10 @@
   "license": "MIT",
   "scripts": {
     "codegen": "graph codegen",
-    "build": "graph build",
-    "deploy": "graph deploy --product subgraph-studio velodrome-optimism-rewards"
+    "build-optimism": "graph build --network optimism",
+    "deploy-optimism": "graph deploy --product subgraph-studio --network optimism velodrome-optimism-rewards",
+    "build-base": "graph build --network base",
+    "deploy-base": "graph deploy --product subgraph-studio --network base aerodrome-base-rewards"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.0",

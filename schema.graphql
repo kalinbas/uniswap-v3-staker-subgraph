@@ -1,11 +1,16 @@
-type Incentive @entity {
+type Gauge @entity {
   id: ID!
   pool: Bytes!
-  gauge: Bytes!
+  rewardToken: Bytes!
+  claimTotal: BigInt!
+}
+
+type Incentive @entity {
+  id: ID!
+  gauge: Gauge!
   startTime: BigInt!
   endTime: BigInt!
   reward: BigInt!
-  rewardToken: Bytes!
 }
 
 type Position @entity {
@@ -39,6 +44,6 @@ type Claim @entity {
   timestamp: BigInt!
   blockNumber: BigInt!
   amount: BigInt!
-  rewardToken: Bytes!
+  gauge: Gauge!
   owner: Bytes!
 }
